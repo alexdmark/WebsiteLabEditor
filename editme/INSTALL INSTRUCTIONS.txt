@@ -1,0 +1,13 @@
+WebsiteLab Editor Installation:
+1) Upload editme folder
+2) Make these files and folders writeable:
+	uploads or images 
+	all html files that should be editable
+	editme/backups folder
+3) Edit editme/process.php and define uploads folder
+4) Add editor script to all html files that should be editable
+
+Requirements:
+- jQuery
+- jQueryUI
+- all editable pages must be .html

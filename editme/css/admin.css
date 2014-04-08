@@ -1,0 +1,361 @@
+/* ==========================================================================
+   HTML5 Boilerplate styles - h5bp.com (generated via initializr.com)
+   ========================================================================== */
+
+html,
+button,
+input,
+select,
+textarea {
+    color: #222;
+}
+
+body {
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+img {
+    vertical-align: middle;
+}
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.chromeframe {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+}
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+
+/* custom fonts */
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url('fonts/opensans-regular.eot');
+    src: url('fonts/opensans-regular.eot?#iefix') format('embedded-opentype'),
+         url('fonts/opensans-regular.woff') format('woff'),
+         url('fonts/opensans-regular.ttf') format('truetype'),
+         url('fonts/opensans-regular.svg#opensans-regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'OpenSans-Semibold';
+    src: url('fonts/opensans-semibold.eot');
+    src: url('fonts/opensans-semibold.eot?#iefix') format('embedded-opentype'),
+         url('fonts/opensans-semibold.woff') format('woff'),
+         url('fonts/opensans-semibold.ttf') format('truetype'),
+         url('fonts/opensans-semibold.svg#opensans-semibold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* containers */
+
+.header-container {
+	padding: 1em;
+	background: white;
+	-webkit-box-shadow: 0px 4px 8px rgba(214,214,214,0.75);
+	-moz-box-shadow: 0px 4px 8px rgba(214,214,214,0.75);
+	box-shadow: 0px 4px 8px rgba(214,214,214,0.75);
+	position: relative;
+}
+
+.container {
+	padding: 1em;
+}
+
+.pages-container {
+	float: left;
+	width: 45%;
+}
+
+.help-container {
+	float: right;
+	width: 45%;
+}
+
+#backups-container {
+	display: none;
+}
+
+.logo-container,
+.top-nav {
+	float: left;
+}
+
+.logo-link,
+.logo-link:hover {
+	border:none;
+}
+
+.top-nav {
+	padding:0.3em 0 0 2em;
+}
+
+a {
+	font-family: 'OpenSans-Semibold';
+	color: #147497;
+	text-decoration: none;
+	border-bottom: 1px dotted #147497;
+	cursor: pointer;
+}
+
+a:hover {
+	color: #61c0e3;
+	border-bottom: 1px dotted #61c0e3;
+}
+
+li {
+	margin: 0.6em 0;
+}
+
+body {
+	background: #f1f1f1;
+	font-family: 'OpenSans';
+}
+.login {
+	padding-top: 150px;
+	width: 320px;
+	margin: 0 auto;
+	text-align: center;
+}
+.login form {
+	background: #fff;
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,.13);
+	box-shadow: 0 1px 3px rgba(0,0,0,.13);
+	padding: 1.3em;
+	text-align: left;
+	margin-top: 15px;
+}
+label {
+	color: #777;
+	font-size: 14px;
+	display: block;
+	margin:1em 0 0.6em 0;
+}
+.inputfield {
+	width: 96%;
+	padding: 2%;
+}
+.login-field {
+	text-align: right;
+	margin: 2em 0 0 0;
+}
+input[type="submit"] {
+	background: #2ea2cc;
+	-webkit-box-shadow: inset 0 1px 0 rgba(120,200,230,.5),0 1px 0 rgba(0,0,0,.15);
+	box-shadow: inset 0 1px 0 rgba(120,200,230,.5),0 1px 0 rgba(0,0,0,.15);
+	color: #fff;
+	cursor: pointer;
+	border:1px solid #0074a2;
+	border-radius: 3px;
+	padding: 0.4em 0.8em;
+}
+input[type="submit"]:hover {
+	background: #1e8cbe;
+	border-color: #0074a2;
+	-webkit-box-shadow: inset 0 1px 0 rgba(120,200,230,.6);
+	box-shadow: inset 0 1px 0 rgba(120,200,230,.6);
+	color: #fff;
+}
+.wrapper {
+	width: 900px;
+	margin: 0 auto;
+}
+.logo {
+	width:190px;
+}
+
+.footnote {
+	font-size: 0.9em;
+	color: #777;
+}
+
+
+
+
+
+
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+
+}
+
+/* ==========================================================================
+   Helper classes
+   ========================================================================== */
+
+.ir {
+    background-color: transparent;
+    border: 0;
+    overflow: hidden;
+    *text-indent: -9999px;
+}
+
+.ir:before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 150%;
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+.visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+    clip: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    width: auto;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1;
+}
+
+/* ==========================================================================
+   Print styles
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
