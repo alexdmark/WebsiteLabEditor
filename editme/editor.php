@@ -26,13 +26,43 @@ function checkAuth(){
 	});
 }
 
+//enable or disable links
+function enableLinks(state){
+	if(state === false){
+		//disable links
+		$('a').each(function(){
+	    	var alink = $(this).attr('href');
+	    	$(this).attr('data-temp-link', alink);
+	    	$(this).attr('href','');
+	    });
+	}
+	else {
+		//enable links
+	    $('a').each(function(){
+	    	var alink = $(this).attr('data-temp-link');
+	    	$(this).attr('href', alink);
+	   		$(this).removeAttr('data-temp-link');
+	   	});
+	}
+}
+
 	
 		//set initial vars
-		var editmode = false;
+		var edittext = false;
+		var editimages = false;
 		var prevFocus;
 	
 		//create edit and save buttons
-		$('body').append('<div id="WLEbuttons" style="position:fixed;top:50%;margin-top:-72px;left:0;z-index:99999;"><button style="margin-bottom:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" onclick="window.location=\'/editme\';"><img src="editme/back-button.png" style="width:20px;padding-right:8px;">Page Manager</button><br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="editsite"><img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Turn On Edit Mode</button><br><button id="WLEfontup">Font +</button><button id="WLEfontdown">Font -</button><br><button onclick="document.execCommand(\'undo\');">Undo</button><button onclick="document.execCommand(\'redo\');">Redo</button><br><button style="margin-top:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;cursor:pointer;" id="updatesite"><img src="editme/save-button.png" style="width:20px;padding-right:8px;">Save Page</button></div>');
+		var WLEbuttons = '<div id="WLEbuttons" style="position:fixed;top:50%;margin-top:-72px;left:0;z-index:99999;">';
+		WLEbuttons += '<button style="margin-bottom:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" onclick="window.location=\'/editme\';"><img src="editme/back-button.png" style="width:20px;padding-right:8px;">Page Manager</button>';
+		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEedittext"><img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Text</button>';
+		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEeditimages"><img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Pictures</button>';
+		WLEbuttons += '<br><button id="WLEfontup">Font +</button><button id="WLEfontdown">Font -</button>';
+		WLEbuttons += '<br><button onclick="document.execCommand(\'undo\');">Undo</button><button onclick="document.execCommand(\'redo\');">Redo</button>';
+		WLEbuttons += '<br><button style="margin-top:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;cursor:pointer;" id="WLEupdatepage"><img src="editme/save-button.png" style="width:20px;padding-right:8px;">Save Page</button>';
+		WLEbuttons += '</div>';
+		
+		$('body').append(WLEbuttons);
 		
 		//if the edit button is hovered over, keep it there
 		$("body").delegate(".WLEchangeimagebutton", "mouseover", function(){
@@ -48,8 +78,8 @@ function checkAuth(){
 		//on mouseover show the edit button
 		$("img.WLEeditable, .WLEbackgroundimage").mouseover(function(){
 		
-			//if editmode == yes
-			if(editmode === true){
+			//if editimages == yes
+			if(editimages === true){
     		
     			var imgid = $(this).attr('id');
     			
@@ -137,7 +167,7 @@ function checkAuth(){
 			prevFocus = $(this);
 			
 			//add replace data-action attr for editable sections that aren't images
-			if(editmode == true && $(this).prop("tagName") != 'IMG'){
+			if(edittext == true && $(this).prop("tagName") != 'IMG'){
 				$(this).attr('data-action', 'replace');
 			}
 		});
@@ -155,51 +185,67 @@ function checkAuth(){
     		newfontsize = parseInt(WLEfontsize) - 2 + "px";
 	    	prevFocus.css('font-size', newfontsize);
     	});
+    	
+    	//edit image function
+    	$("#WLEeditimages").click(function(){
+    	
+    		if(editimages === false){
+    			//disable links
+				enableLinks(false);
+				
+				$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
+	    		$(this).css('backgroundColor', '#e54627');
+				$("#WLEedittext").attr('disabled', 'true');
+				editimages = true;
+			}
+			else {
+				//enable links
+				enableLinks(true);
+				
+				$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Pictures');
+	    		$(this).css('backgroundColor', '#67c036');
+				$("#WLEedittext").removeAttr('disabled');
+				editimages = false;
+			}
+	    	
+    	});
     		
-		//edit function
-    	$("#editsite").click(function(){
+		//edit text function
+    	$("#WLEedittext").click(function(){
     	
     		//check user is logged in so they don't make heaps of changes and then can't save them
     		checkAuth();
     		
-    		if(editmode === false){
+    		if(edittext === false){
 	    		$(".WLEeditable").attr("contenteditable","true").css('outline','#ffe767 dashed 2px');
 	    		//disable links
-	    		$('a').each(function(){
-	    			var alink = $(this).attr('href');
-	    			$(this).attr('data-temp-link', alink);
-	    			$(this).attr('href','');
-	    		});
-	    		$("#editsite").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Turn Off Edit Mode');
-	    		$("#editsite").css('backgroundColor', '#e54627');
-				editmode = true;
+	    		enableLinks(false);
+	    		
+	    		$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
+	    		$(this).css('backgroundColor', '#e54627');
+	    		$("#WLEeditimages").attr('disabled', 'true');
+				edittext = true;
     		}
     		else {
 	    		$(".WLEeditable").attr("contenteditable","false").css('outline','');
 	    		//show links again
-	    		$('a').each(function(){
-	    			var alink = $(this).attr('data-temp-link');
-	    			$(this).attr('href', alink);
-	    			$(this).removeAttr('data-temp-link');
-	    		});
-	    		$("#editsite").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Turn On Edit Mode');
-	    		$("#editsite").css('backgroundColor', '#67c036');
-				editmode = false;
+	    		enableLinks(true);
+	    		
+	    		$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Text');
+	    		$(this).css('backgroundColor', '#67c036');
+	    		$("#WLEeditimages").removeAttr('disabled');
+				edittext = false;
     		}
     	});
 		
 		//save function
-    	$("#updatesite").click(function(){
+    	$("#WLEupdatepage").click(function(){
     	
     		//first lets remove WLE helper elements & attributes
 			$(".WLEeditable").removeAttr("contenteditable").css('outline','');
 			$("img").removeAttr("data-img-id");
-			if(editmode === true){
-				$('a').each(function(){
-					var alink = $(this).attr('data-temp-link');
-					$(this).attr('href', alink);
-					$(this).removeAttr('data-temp-link');
-				});
+			if(edittext === true || editimages === true){
+				enableLinks(true);
     		}
     		
     		//create json of all editable content
