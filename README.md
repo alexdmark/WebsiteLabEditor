@@ -1,10 +1,10 @@
-WebsiteLabEditor
+Website Lab Editor
 ================
 
 Simple in-browser Website Editor.
 
 
-WebsiteLab Editor Installation:
+Website Lab Editor Installation:
 ==================================
 1) Upload editme folder & editme.php to root directory
 
