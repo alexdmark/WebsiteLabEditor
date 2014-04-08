@@ -10,6 +10,12 @@ if($_SESSION['loggedin'] != 'yes'){
 
 /***** WebsiteLabEditor v1.4 *****/
 
+//set initial vars
+var edittext = false;
+var editimages = false;
+var prevFocus;
+var prevHover;
+
 //check still logged in
 function checkAuth(){
 			
@@ -27,8 +33,8 @@ function checkAuth(){
 }
 
 //enable or disable links
-function enableLinks(state){
-	if(state === false){
+function toggleLinks(state){
+	if(state == 'disable'){
 		//disable links
 		$('a').each(function(){
 	    	var alink = $(this).attr('href');
@@ -46,11 +52,66 @@ function enableLinks(state){
 	}
 }
 
+//toggle text editor
+function toggleTextEditor(state){
+
+	//check user is logged in so they don't make heaps of changes and then can't save them
+    checkAuth();
 	
-		//set initial vars
-		var edittext = false;
-		var editimages = false;
-		var prevFocus;
+	if(state == 'enable'){
+		//disable links
+		toggleLinks('disable');
+		toggleImageEditor('disable');
+		
+		//make editable and show which elements they can edit
+		$(".WLEeditable:not(img)").attr("contenteditable","true").css('outline','#ffe767 dashed 2px');
+				
+		$("#WLEedittext").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
+	    $("#WLEedittext").css('backgroundColor', '#e54627');
+		edittext = true;
+	}
+	else {
+		//disable links
+		toggleLinks('enable');
+		
+		//disable editable and remove outline
+		$(".WLEeditable:not(img)").attr("contenteditable","false").css('outline','');
+				
+		$("#WLEedittext").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Text');
+	    $("#WLEedittext").css('backgroundColor', '#67c036');
+		edittext = false;
+	}
+	
+}
+
+//toggle image editor
+function toggleImageEditor(state){
+
+	//check user is logged in so they don't make heaps of changes and then can't save them
+    checkAuth();
+	
+	if(state == 'enable'){
+		//disable links
+		toggleLinks('disable');
+		toggleTextEditor('disable');
+				
+		$("#WLEeditimages").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
+	    $("#WLEeditimages").css('backgroundColor', '#e54627');
+		editimages = true;
+	}
+	else {
+		//disable links
+		toggleLinks('enable');
+				
+		$("#WLEeditimages").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Pictures');
+	    $("#WLEeditimages").css('backgroundColor', '#67c036');
+		editimages = false;
+	}
+	
+}
+
+	
+		
 	
 		//create edit and save buttons
 		var WLEbuttons = '<div id="WLEbuttons" style="position:fixed;top:50%;margin-top:-72px;left:0;z-index:99999;">';
@@ -64,24 +125,37 @@ function enableLinks(state){
 		
 		$('body').append(WLEbuttons);
 		
+		//when an editable element is hovered over, store it
+		$(".WLEeditable, .WLEbackgroundimage").hover(function() {
+		
+			//set prevFocus for potential element changes (e.g. font-size, bold)
+			prevHover = $(this);
+			
+		});
+		
 		//if the edit button is hovered over, keep it there
-		$("body").delegate(".WLEchangeimagebutton", "mouseover", function(){
+		$("body").delegate(".WLEchangeimagebutton", "mouseenter", function(){
 			$(this).show();
+			prevHover.css('opacity', '0.5');
 		});
 		
 		//then remove it
-		$("body").delegate(".WLEchangeimagebutton", "mouseout", function(){
+		$("body").delegate(".WLEchangeimagebutton", "mouseleave", function(){
 			$(this).hide();
+			prevHover.css('opacity', '1');
 		});
 		
 		
 		//on mouseover show the edit button
-		$("img.WLEeditable, .WLEbackgroundimage").mouseover(function(){
+		$("img.WLEeditable, .WLEbackgroundimage").mouseenter(function(){
 		
 			//if editimages == yes
 			if(editimages === true){
     		
     			var imgid = $(this).attr('id');
+    			
+    			//fade img
+    			$(this).css('opacity', '0.5');
     			
     			//if change image form doesn't exist yet
     			if($('#'+imgid+'-form').length == 0){
@@ -112,9 +186,11 @@ function enableLinks(state){
     	});
     	
     	//and hide on mouseout
-    	$("img.WLEeditable, .WLEbackgroundimage").mouseout(function(){
+    	$("img.WLEeditable, .WLEbackgroundimage").mouseleave(function(){
     		
     		var imgid = $(this).attr('id');
+    		
+	    	$(this).css('opacity', '1');
     		
     		//hide the button
 			$("img.WLEchangeimagebutton[data-img-id="+imgid+"]").hide();
@@ -190,51 +266,22 @@ function enableLinks(state){
     	$("#WLEeditimages").click(function(){
     	
     		if(editimages === false){
-    			//disable links
-				enableLinks(false);
-				
-				$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
-	    		$(this).css('backgroundColor', '#e54627');
-				$("#WLEedittext").attr('disabled', 'true');
-				editimages = true;
+    			toggleImageEditor('enable');
 			}
 			else {
-				//enable links
-				enableLinks(true);
-				
-				$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Pictures');
-	    		$(this).css('backgroundColor', '#67c036');
-				$("#WLEedittext").removeAttr('disabled');
-				editimages = false;
+				toggleImageEditor('disable');
 			}
 	    	
     	});
     		
 		//edit text function
     	$("#WLEedittext").click(function(){
-    	
-    		//check user is logged in so they don't make heaps of changes and then can't save them
-    		checkAuth();
     		
     		if(edittext === false){
-	    		$(".WLEeditable").attr("contenteditable","true").css('outline','#ffe767 dashed 2px');
-	    		//disable links
-	    		enableLinks(false);
-	    		
-	    		$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
-	    		$(this).css('backgroundColor', '#e54627');
-	    		$("#WLEeditimages").attr('disabled', 'true');
-				edittext = true;
+	    		toggleTextEditor('enable');
     		}
     		else {
-	    		$(".WLEeditable").attr("contenteditable","false").css('outline','');
-	    		//show links again
-	    		enableLinks(true);
-	    		
-	    		$(this).html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Text');
-	    		$(this).css('backgroundColor', '#67c036');
-	    		$("#WLEeditimages").removeAttr('disabled');
-				edittext = false;
+	    		toggleTextEditor('disable');
     		}
     	});
 		
@@ -245,7 +292,7 @@ function enableLinks(state){
 			$(".WLEeditable").removeAttr("contenteditable").css('outline','');
 			$("img").removeAttr("data-img-id");
 			if(edittext === true || editimages === true){
-				enableLinks(true);
+				toggleLinks('enable');
     		}
     		
     		//create json of all editable content
