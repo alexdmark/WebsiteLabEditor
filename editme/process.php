@@ -28,21 +28,21 @@ if($_POST['action'] == 'save-page'){
 	
 	$changes = json_decode($_POST['WLEchanges']);
 	
-	//foreach change, replace the current html with the new one
+	//cycle through changes to be made
 	foreach($changes as $change){
 
 		$element = $html->find('#'.$change->id);	
 		
-		//if action is replace, replace the whole html
-		if($change->WLEaction == 'replace'){
+		//if action is update, update the whole html
+		if($change->WLEaction == 'update'){
 			$element[0]->outertext = $change->WLEhtml;
 		}
 		//if action is change-src, just change the src attr
 		elseif($change->WLEaction == 'change-src'){
 			$element[0]->setAttribute('src', $change->WLEhtml);
 		}
-		//if action is new-css, add css to page
-		elseif($change->WLEaction == 'new-css'){
+		//if action is add-css, add css to page
+		elseif($change->WLEaction == 'add-css'){
 		
 			$style = $html->find('style[class=WLEcustomcss]');
 			//if WLEcustomcss element already exists
@@ -56,6 +56,10 @@ if($_POST['action'] == 'save-page'){
 				$head = $html->find('head');
 				$head[0]->innertext = $head[0]->innertext.'<style class="WLEcustomcss">'.$change->WLEhtml.'</style>';
 			}
+		}
+		//if action is delete, delete the element
+		elseif($change->WLEaction == 'delete'){
+			$element[0]->outertext = '';
 		}
 	
 	}

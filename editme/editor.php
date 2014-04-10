@@ -15,8 +15,10 @@ header('Content-type: application/javascript');
 //set initial vars
 var edittext = false;
 var editimages = false;
+var deletemode = false;
 var prevFocus;
 var prevHover;
+var WLEarray = [];
 
 //check still logged in
 function checkAuth(){
@@ -62,8 +64,9 @@ function toggleTextEditor(state){
 	
 	if(state == 'enable'){
 		//disable links
-		toggleLinks('disable');
 		toggleImageEditor('disable');
+		toggleDeleteMode('disable');
+		toggleLinks('disable');
 		
 		//make editable and show which elements they can edit
 		$(".WLEeditable:not(img)").attr("contenteditable","true").css('outline','#ffe767 dashed 2px');
@@ -73,7 +76,7 @@ function toggleTextEditor(state){
 		edittext = true;
 	}
 	else {
-		//disable links
+		//enable links
 		toggleLinks('enable');
 		
 		//disable editable and remove outline
@@ -94,20 +97,74 @@ function toggleImageEditor(state){
 	
 	if(state == 'enable'){
 		//disable links
-		toggleLinks('disable');
 		toggleTextEditor('disable');
+		toggleDeleteMode('disable');
+		toggleLinks('disable');
 				
 		$("#WLEeditimages").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
 	    $("#WLEeditimages").css('backgroundColor', '#e54627');
 		editimages = true;
 	}
 	else {
-		//disable links
+		//enable links
 		toggleLinks('enable');
 				
 		$("#WLEeditimages").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Pictures');
 	    $("#WLEeditimages").css('backgroundColor', '#67c036');
 		editimages = false;
+	}
+	
+}
+
+//toggle delete mode
+function toggleDeleteMode(state){
+
+	//check user is logged in so they don't make heaps of changes and then can't save them
+    checkAuth();
+	
+	if(state == 'enable'){
+		//disable links
+		toggleTextEditor('disable');
+		toggleImageEditor('disable');
+		toggleLinks('disable');
+		
+		//outline deletable sections
+		$('.WLEdelete').css('outline','#F00 dotted 2px');
+				
+		$("#WLEdeletemode").html('<img src="editme/delete-button.png" style="width:20px;padding-right:8px;">Stop Deleting');
+	    $("#WLEdeletemode").css('backgroundColor', '#e54627');
+		deletemode = true;
+	}
+	else {
+		//enable links
+		toggleLinks('enable');
+		
+		//takeaway outline
+		$('.WLEdelete').css('outline','');
+				
+		$("#WLEdeletemode").html('<img src="editme/delete-button.png" style="width:20px;padding-right:8px;">Delete Something');
+	    $("#WLEdeletemode").css('backgroundColor', '#67c036');
+		deletemode = false;
+	}
+	
+}
+
+function deleteElement(id){
+
+	var answer = confirm("Are you sure you want to delete this element?");
+	
+	if(answer == true){
+	
+		//store the change in the WLEarray
+		item = {}
+		item ["id"] = id;
+		item ["WLEaction"] = 'delete';
+				
+		WLEarray.push(item);
+
+		//then remove the element from the current page
+		$('#'+id).fadeOut();
+		
 	}
 	
 }
@@ -120,17 +177,18 @@ function toggleImageEditor(state){
 		WLEbuttons += '<button style="margin-bottom:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" onclick="window.location=\'/editme\';"><img src="editme/back-button.png" style="width:20px;padding-right:8px;">Page Manager</button>';
 		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEedittext"><img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Text</button>';
 		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEeditimages"><img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Pictures</button>';
+		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEdeletemode"><img src="editme/delete-button.png" style="width:20px;padding-right:8px;">Delete Something</button>';
 		WLEbuttons += '<br><button id="WLEfontup">Font +</button><button id="WLEfontdown">Font -</button>';
 		WLEbuttons += '<br><button onclick="document.execCommand(\'undo\');">Undo</button><button onclick="document.execCommand(\'redo\');">Redo</button>';
-		WLEbuttons += '<br><button style="margin-top:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;cursor:pointer;" id="WLEupdatepage"><img src="editme/save-button.png" style="width:20px;padding-right:8px;">Save Page</button>';
+		WLEbuttons += '<br><button style="margin-top:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;cursor:pointer;" id="WLEsavepage"><img src="editme/save-button.png" style="width:20px;padding-right:8px;">Save Page</button>';
 		WLEbuttons += '</div>';
 		
 		$('body').append(WLEbuttons);
 		
 		/*************** Image Editing Functions ***************/
 		
-		//when an editable image element is hovered over, store it for later use so we don't change the opacity too early
-		$("body").delegate("img.WLEeditable, .WLEbackgroundimage, .WLEslideshow", "mouseenter", function(){
+		//when an editable element is hovered over, store it for later use so we don't change the opacity too early
+		$("body").delegate(".WLEeditable, .WLEbackgroundimage, .WLEslideshow, .WLEdelete", "mouseenter", function(){
 		
 			//set prevFocus for potential element changes (e.g. font-size, bold)
 			prevHover = $(this);
@@ -138,13 +196,13 @@ function toggleImageEditor(state){
 		});
 		
 		//if the edit image button is hovered over, keep it there
-		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton", "mouseenter", function(){
+		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton, .WLEdeletebutton", "mouseenter", function(){
 			$(this).show();
 			prevHover.css('opacity', '0.5');
 		});
 		
 		//then remove it
-		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton", "mouseleave", function(){
+		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton, .WLEdeletebutton", "mouseleave", function(){
 			$(this).hide();
 			prevHover.css('opacity', '1');
 		});
@@ -288,7 +346,7 @@ function toggleImageEditor(state){
 					}
 					if(imgtype == 'background-image'){
 						//create new css
-						$('head').append('<style id="style-for-'+oldimgid+'" data-action="new-css" class="WLEcustomcss">#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'")}</style>');
+						$('head').append('<style id="style-for-'+oldimgid+'" data-action="add-css" class="WLEcustomcss">#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'")}</style>');
 					}
                 	
 				},
@@ -297,6 +355,47 @@ function toggleImageEditor(state){
 				}
 			});
 		});
+		
+		/****** delete event *******/
+		
+		//mouseenter event for slideshows
+		$("body").delegate(".WLEdelete", "mouseenter", function(){
+			if(deletemode === true){
+				$(this).css('opacity', '0.5');
+				
+				var elementid = $(this).attr('id');
+				
+				//create delete button if it doesn't exist
+				if($('#'+elementid+'-delete-button').length == 0){
+				
+					//create button
+					$('body').append('<img src="editme/delete-button.png" style="display:none;cursor:pointer;background:black;padding:0.4em;" id="'+elementid+'-delete-button" class="WLEdeletebutton" onclick="deleteElement(\''+elementid+'\');">');
+				
+				}
+				
+				//show the button
+				$('#'+elementid+'-delete-button').show();
+    		
+				//position the button
+				$('#'+elementid+'-delete-button').position({
+					my: "center",
+					at: "center",
+					of: $("#"+elementid)
+				});
+			}
+		});
+		
+		//mouseleave for deleteable element
+		$("body").delegate(".WLEdelete", "mouseleave", function(){
+		
+			var elementid = $(this).attr('id');
+    		
+	    	$(this).css('opacity', '1');
+    		
+    		//hide the button
+			$('#'+elementid+'-delete-button').hide();
+		
+		});
     	
     	//when an editable element that isn't an image is focused, store it for later style maniplulations
 		$(".WLEeditable:not(img)").focus(function() {
@@ -304,9 +403,9 @@ function toggleImageEditor(state){
 			//set prevFocus for potential element changes (e.g. font-size, bold)
 			prevFocus = $(this);
 			
-			//add replace data-action so 
+			//add update data-action so 
 			/* Instead of this we should make a function that stores the id of elements that need updating */
-			$(this).attr('data-action', 'replace');
+			$(this).attr('data-action', 'update');
 		});
     	
     	//font increase
@@ -345,9 +444,20 @@ function toggleImageEditor(state){
 	    		toggleTextEditor('disable');
     		}
     	});
+    	
+    	//delete function
+    	$("#WLEdeletemode").click(function(){
+    		
+    		if(deletemode === false){
+	    		toggleDeleteMode('enable');
+    		}
+    		else {
+	    		toggleDeleteMode('disable');
+    		}
+    	});
 		
 		//save function
-    	$("#WLEupdatepage").click(function(){
+    	$("#WLEsavepage").click(function(){
     	
     		//first lets remove WLE helper elements & attributes
 			$(".WLEeditable").removeAttr("contenteditable").css('outline','');
@@ -357,7 +467,6 @@ function toggleImageEditor(state){
     		}
     		
     		//create json of all content to be sent to server
-    		jsonObj = [];
 			$(".WLEeditable[data-action], .WLEcustomcss[data-action]").each(function() {
 
 				var id = $(this).attr("id");
@@ -371,11 +480,11 @@ function toggleImageEditor(state){
 					var WLEhtml = $(this).attr("src");
 				}
 				//if action is change-background
-				if(WLEaction == 'new-css'){
+				if(WLEaction == 'add-css'){
 					var WLEhtml = $(this).html();
 				}
-				//if action is replace
-				if(WLEaction == 'replace'){
+				//if action is update
+				if(WLEaction == 'update'){
 					var WLEhtml = $(this)[0].outerHTML;
 				}
 				
@@ -384,14 +493,14 @@ function toggleImageEditor(state){
 				item ["WLEhtml"] = WLEhtml;
 				item ["WLEaction"] = WLEaction;
 				
-				jsonObj.push(item);
+				WLEarray.push(item);
 			});
 
 			//then send the changes to the server    		
 	    	$.ajax({
 				type: "POST",
 				url: "editme/process.php",
-				data: { action: 'save-page', name: WLEpagename, WLEchanges: JSON.stringify(jsonObj) }
+				data: { action: 'save-page', name: WLEpagename, WLEchanges: JSON.stringify(WLEarray) }
 			}).done(function( msg ) {
 				if(msg == 'success'){
 					alert("Your changes have been saved.");
