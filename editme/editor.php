@@ -169,6 +169,16 @@ function deleteElement(id){
 	
 }
 
+function addCSS(id, css){
+	//store the change in the WLEarray
+	item = {}
+	item ["id"] = id;
+	item ["WLEaction"] = 'add-css';
+	item ["WLEhtml"] = css;
+				
+	WLEarray.push(item);
+}
+
 	
 		
 	
@@ -345,8 +355,10 @@ function deleteElement(id){
 						$("#"+oldimgid).attr('data-action', 'change-src');
 					}
 					if(imgtype == 'background-image'){
-						//create new css
-						$('head').append('<style id="style-for-'+oldimgid+'" data-action="add-css" class="WLEcustomcss">#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'")}</style>');
+						//create temporary css for current page
+						$('head').append('<style>#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'")}</style>');
+						//add new css to WLEarray
+						addCSS(oldimgid, '#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'");}');
 					}
                 	
 				},
@@ -403,8 +415,7 @@ function deleteElement(id){
 			//set prevFocus for potential element changes (e.g. font-size, bold)
 			prevFocus = $(this);
 			
-			//add update data-action so 
-			/* Instead of this we should make a function that stores the id of elements that need updating */
+			//add data-action attribute to update so we know to save changes later
 			$(this).attr('data-action', 'update');
 		});
     	
@@ -467,7 +478,7 @@ function deleteElement(id){
     		}
     		
     		//create json of all content to be sent to server
-			$(".WLEeditable[data-action], .WLEcustomcss[data-action]").each(function() {
+			$(".WLEeditable[data-action]").each(function() {
 
 				var id = $(this).attr("id");
 				var WLEaction = $(this).attr("data-action");
@@ -478,10 +489,6 @@ function deleteElement(id){
 				//if action is change-src
 				if(WLEaction == 'change-src'){
 					var WLEhtml = $(this).attr("src");
-				}
-				//if action is change-background
-				if(WLEaction == 'add-css'){
-					var WLEhtml = $(this).html();
 				}
 				//if action is update
 				if(WLEaction == 'update'){

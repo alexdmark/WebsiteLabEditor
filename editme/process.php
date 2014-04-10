@@ -47,8 +47,18 @@ if($_POST['action'] == 'save-page'){
 			$style = $html->find('style[class=WLEcustomcss]');
 			//if WLEcustomcss element already exists
 			if($style){
+			
+				//is the id already being styled?
+				$found = strpos($style[0]->innertext, '#'.$change->id);
 				
-				$style[0]->innertext = $style[0]->innertext.$change->WLEhtml;
+				if($found === false) {
+					//if the id isn't already being styled just add the whole style to the existing css
+					$style[0]->innertext = $style[0]->innertext.$change->WLEhtml;
+				}
+				else {
+					//if it is, then replace the current style with the new one
+					$style[0]->innertext = preg_replace("/(.*)(#".$change->id."\s?\{.+?\})(.*)/", "$1 ".$change->WLEhtml." $3", $style[0]->innertext, 1);
+				}
 				
 			}
 			//if WLEcustomcss doesn't exist yet
@@ -57,7 +67,7 @@ if($_POST['action'] == 'save-page'){
 				$head[0]->innertext = $head[0]->innertext.'<style class="WLEcustomcss">'.$change->WLEhtml.'</style>';
 			}
 		}
-		//if action is delete, delete the element
+		//lastly, if action is delete, delete the element
 		elseif($change->WLEaction == 'delete'){
 			$element[0]->outertext = '';
 		}
