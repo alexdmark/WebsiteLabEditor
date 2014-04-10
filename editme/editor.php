@@ -6,6 +6,8 @@ if($_SESSION['loggedin'] != 'yes'){
 	die('login');
 }
 
+header('Content-type: application/javascript');
+
 ?>
 
 /***** WebsiteLabEditor v1.4 *****/
@@ -125,29 +127,31 @@ function toggleImageEditor(state){
 		
 		$('body').append(WLEbuttons);
 		
-		//when an editable element is hovered over, store it
-		$(".WLEeditable, .WLEbackgroundimage").hover(function() {
+		/*************** Image Editing Functions ***************/
+		
+		//when an editable image element is hovered over, store it for later use so we don't change the opacity too early
+		$("body").delegate("img.WLEeditable, .WLEbackgroundimage, .WLEslideshow", "mouseenter", function(){
 		
 			//set prevFocus for potential element changes (e.g. font-size, bold)
 			prevHover = $(this);
 			
 		});
 		
-		//if the edit button is hovered over, keep it there
-		$("body").delegate(".WLEchangeimagebutton", "mouseenter", function(){
+		//if the edit image button is hovered over, keep it there
+		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton", "mouseenter", function(){
 			$(this).show();
 			prevHover.css('opacity', '0.5');
 		});
 		
 		//then remove it
-		$("body").delegate(".WLEchangeimagebutton", "mouseleave", function(){
+		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton", "mouseleave", function(){
 			$(this).hide();
 			prevHover.css('opacity', '1');
 		});
 		
 		
-		//on mouseover show the edit button
-		$("img.WLEeditable, .WLEbackgroundimage").mouseenter(function(){
+		//mouseenter event for normal & background images
+		$("body").delegate("img.WLEeditable, .WLEbackgroundimage", "mouseenter", function(){
 		
 			//if editimages == yes
 			if(editimages === true){
@@ -185,8 +189,64 @@ function toggleImageEditor(state){
 	    	}
     	});
     	
-    	//and hide on mouseout
-    	$("img.WLEeditable, .WLEbackgroundimage").mouseleave(function(){
+    	//mouseenter event for slideshows
+		$(".WLEslideshow").mouseenter(function(){
+			if(editimages === true){
+			
+				var slideshowid = $(this).attr('id');
+    			
+    			//fade slideshow
+    			$(this).css('opacity', '0.5');
+    			
+    			//if slideshow popup doesn't exist yet
+    			if($('#'+slideshowid+'-poupup').length == 0){
+    			
+    				var WLEimages = '';
+    				
+    				//first get all imgs
+    				$('#'+slideshowid+' img').each(function() {
+						WLEimages += '<img class="WLEslideshowimage" data-original-id="'+$(this).attr('id')+'" src="'+$(this).attr('src')+'" style="max-width:300px;max-height:300px;"><form id="'+$(this).attr('id')+'-form" class="WLEimageform"><input class="WLEimageuploadbutton" type="file" data-img-id="'+$(this).attr('id')+'" data-img-type="normal-image" id="img'+$(this).attr('id')+'"></form><br>';
+					});
+					
+					//next create the popup
+					$('body').append('<div id="'+slideshowid+'-poupup" style="display:none;position:fixed;top:50%;left:50%;width:600px;height:400px;margin-left:-300px;margin-top:-200px;z-index:99999;overflow:scroll;background:white;border:5px solid black;">'+WLEimages+'</div>');
+    				
+    				//then create the edit slideshow button
+    				$('body').append('<img src="editme/edit.png" style="display:none;width:40px;cursor:pointer;position:absolute;z-index:9999;" class="WLEeditslideshowbutton" data-slideshow-id="'+slideshowid+'">');
+    			}
+    			
+    			//show the button
+				$("img.WLEeditslideshowbutton[data-slideshow-id="+slideshowid+"]").show();
+    		
+				//position the button
+				$("img.WLEeditslideshowbutton[data-slideshow-id="+slideshowid+"]").position({
+					my: "center",
+					at: "center",
+					of: $("#"+slideshowid)
+				});
+    		
+			}
+		});
+		
+		//function for when slideshow edit button is clicked
+		$("body").delegate(".WLEeditslideshowbutton", "click", function(){
+			$('#'+$(this).attr('data-slideshow-id')+'-poupup').show();
+		});
+    	
+    	//hide slideshow eidt button on mouseleave
+    	$("body").delegate(".WLEslideshow", "mouseleave", function(){
+    		
+    		var slideshowid = $(this).attr('id');
+    		
+	    	$(this).css('opacity', '1');
+    		
+    		//hide the button
+			$("img.WLEeditslideshowbutton[data-slideshow-id="+slideshowid+"]").hide();
+	    	
+    	});
+    	
+    	//hide normal and background image edit buttons on mouseleave
+    	$("body").delegate("img.WLEeditable, .WLEbackgroundimage", "mouseleave", function(){
     		
     		var imgid = $(this).attr('id');
     		
@@ -197,12 +257,12 @@ function toggleImageEditor(state){
 	    	
     	});
     	    	
-    	//if edit is clicked, we need to fake a click
+    	//if edit image button is clicked, we need to fake a click to the real input file browser button
     	$("body").delegate(".WLEchangeimagebutton", "click", function(){
 			$("#img"+$(this).attr("data-img-id")).click();
 		});
 
-		//when new image is chosen
+		//when a new image is chosen for upload
 		$("body").delegate(".WLEimageuploadbutton", "change", function(){
 
         	//save image
@@ -211,6 +271,8 @@ function toggleImageEditor(state){
 			var file = this.files[0];
 			var formData = new FormData();
 			formData.append( "new-img", file );
+			
+			//upload the file via ajax
 			$.ajax({
             	type:"POST",
 				url: "editme/process.php",
@@ -226,7 +288,7 @@ function toggleImageEditor(state){
 					}
 					if(imgtype == 'background-image'){
 						//create new css
-						$('head').append('<style id="style-for-'+oldimgid+'" data-action="new-css" class="WLEcustomcss">#'+oldimgid+' {background-image:url('+data+ '?' +new Date().getTime()+')}</style>');
+						$('head').append('<style id="style-for-'+oldimgid+'" data-action="new-css" class="WLEcustomcss">#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'")}</style>');
 					}
                 	
 				},
@@ -236,16 +298,15 @@ function toggleImageEditor(state){
 			});
 		});
     	
-    	//when an editable element is focused, define what we want to do with it
-		$(".WLEeditable").focus(function() {
+    	//when an editable element that isn't an image is focused, store it for later style maniplulations
+		$(".WLEeditable:not(img)").focus(function() {
 		
 			//set prevFocus for potential element changes (e.g. font-size, bold)
 			prevFocus = $(this);
 			
-			//add replace data-action attr for editable sections that aren't images
-			if(edittext == true && $(this).prop("tagName") != 'IMG'){
-				$(this).attr('data-action', 'replace');
-			}
+			//add replace data-action so 
+			/* Instead of this we should make a function that stores the id of elements that need updating */
+			$(this).attr('data-action', 'replace');
 		});
     	
     	//font increase
@@ -262,7 +323,7 @@ function toggleImageEditor(state){
 	    	prevFocus.css('font-size', newfontsize);
     	});
     	
-    	//edit image function
+    	//edit image click 
     	$("#WLEeditimages").click(function(){
     	
     		if(editimages === false){
@@ -295,7 +356,7 @@ function toggleImageEditor(state){
 				toggleLinks('enable');
     		}
     		
-    		//create json of all editable content
+    		//create json of all content to be sent to server
     		jsonObj = [];
 			$(".WLEeditable[data-action], .WLEcustomcss[data-action]").each(function() {
 
