@@ -16,6 +16,7 @@ header('Content-type: application/javascript');
 var edittext = false;
 var editimages = false;
 var deletemode = false;
+var copyid = 1;
 var prevFocus;
 var prevHover;
 var WLEarray = [];
@@ -70,6 +71,8 @@ function toggleTextEditor(state){
 		
 		//make editable and show which elements they can edit
 		$(".WLEeditable:not(img)").attr("contenteditable","true").css('outline','#ffe767 dashed 2px');
+		
+		//make elements duplicatable
 				
 		$("#WLEedittext").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Stop Editing');
 	    $("#WLEedittext").css('backgroundColor', '#e54627');
@@ -81,6 +84,8 @@ function toggleTextEditor(state){
 		
 		//disable editable and remove outline
 		$(".WLEeditable:not(img)").attr("contenteditable","false").css('outline','');
+		
+		//stop elements being duplicatable
 				
 		$("#WLEedittext").html('<img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Text');
 	    $("#WLEedittext").css('backgroundColor', '#67c036');
@@ -164,6 +169,13 @@ function deleteElement(id){
 	
 }
 
+function copyElement(what){
+	var what = $("[data-copy-id='"+what+"']");
+	what.after(what[0].outerHTML).removeClass('WLEcopy').removeAttr('data-copy-id');
+	//then add change to array
+	addChange(what.parent().attr("id"), 'update', what.parent()[0].outerHTML);
+}
+
 function addChange(id, action, html){
 
 	//store the change in the WLEarray
@@ -198,7 +210,7 @@ function addChange(id, action, html){
 		/*************** Image Editing Functions ***************/
 		
 		//when an editable element is hovered over, store it for later use so we don't change the opacity too early
-		$("body").delegate(".WLEeditable, .WLEbackgroundimage, .WLEslideshow, .WLEdelete", "mouseenter", function(){
+		$("body").delegate(".WLEeditable, .WLEbackgroundimage, .WLEslideshow, .WLEdelete, .WLEcopy", "mouseenter", function(){
 		
 			//set prevFocus for potential element changes (e.g. font-size, bold)
 			prevHover = $(this);
@@ -206,13 +218,13 @@ function addChange(id, action, html){
 		});
 		
 		//if the edit image button is hovered over, keep it there
-		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton, .WLEdeletebutton", "mouseenter", function(){
+		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton, .WLEdeletebutton, .WLEcopybutton", "mouseenter", function(){
 			$(this).show();
 			prevHover.css('opacity', '0.5');
 		});
 		
 		//then remove it
-		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton, .WLEdeletebutton", "mouseleave", function(){
+		$("body").delegate(".WLEchangeimagebutton, .WLEeditslideshowbutton, .WLEdeletebutton, .WLEcopybutton", "mouseleave", function(){
 			$(this).hide();
 			prevHover.css('opacity', '1');
 		});
@@ -258,7 +270,7 @@ function addChange(id, action, html){
     	});
     	
     	//mouseenter event for slideshows
-		$(".WLEslideshow").mouseenter(function(){
+		$("body").delegate(".WLEslideshow", "mouseenter", function(){
 			if(editimages === true){
 			
 				var slideshowid = $(this).attr('id');
@@ -301,7 +313,7 @@ function addChange(id, action, html){
 			$('#'+$(this).attr('data-slideshow-id')+'-poupup').show();
 		});
     	
-    	//hide slideshow eidt button on mouseleave
+    	//hide slideshow edit button on mouseleave
     	$("body").delegate(".WLEslideshow", "mouseleave", function(){
     		
     		var slideshowid = $(this).attr('id');
@@ -370,7 +382,7 @@ function addChange(id, action, html){
 		
 		/****** delete event *******/
 		
-		//mouseenter event for slideshows
+		//mouseenter event for delet
 		$("body").delegate(".WLEdelete", "mouseenter", function(){
 			if(deletemode === true){
 				$(this).css('opacity', '0.5');
@@ -408,7 +420,56 @@ function addChange(id, action, html){
 			$('#'+elementid+'-delete-button').hide();
 		
 		});
+		
+		/************ copy event **************/
+		
+		$("body").delegate(".WLEcopy", "mouseenter", function(){
     	
+    		if(edittext === true){
+    		
+    			//fade element
+    			$(this).css('opacity', '0.5');
+    			
+    			if($(this).attr('data-copy-id') === undefined){
+    			
+    				//give current element a data-copy-id
+    				var elementid = copyid;
+    				$(this).attr('data-copy-id', copyid);
+    				copyid++;
+    				
+	    			//create button
+					$('body').append('<img src="editme/copy-button.png" style="display:none;cursor:pointer;background:yellow;padding:0.4em;" id="'+elementid+'-copy-button" class="WLEcopybutton" onclick="copyElement('+elementid+');">');
+    			}
+    			
+    			else {
+	    			var elementid = $(this).attr('data-copy-id');
+    			}
+    			
+    			//show the button
+				$('#'+elementid+'-copy-button').show();
+    		
+				//position the button
+				$('#'+elementid+'-copy-button').position({
+					my: "left top",
+					at: "left top",
+					of: $(this)
+				});
+    		}
+    		
+    	});
+    	
+    	//mouseleave for copyable element
+		$("body").delegate(".WLEcopy", "mouseleave", function(){
+		
+			var elementid = $(this).attr('id');
+    		
+	    	$(this).css('opacity', '1');
+    		
+    		//hide the button
+			$('#'+elementid+'-copy-button').hide();
+		
+		});
+		
     	//when an editable element that isn't an image is focused, store it for later style maniplulations
 		$(".WLEeditable:not(img)").focus(function() {
 		
