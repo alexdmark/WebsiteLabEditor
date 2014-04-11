@@ -154,13 +154,8 @@ function deleteElement(id){
 	var answer = confirm("Are you sure you want to delete this element?");
 	
 	if(answer == true){
-	
-		//store the change in the WLEarray
-		item = {}
-		item ["id"] = id;
-		item ["WLEaction"] = 'delete';
-				
-		WLEarray.push(item);
+		
+		addChange(id, 'delete')
 
 		//then remove the element from the current page
 		$('#'+id).fadeOut();
@@ -169,12 +164,17 @@ function deleteElement(id){
 	
 }
 
-function addCSS(id, css){
+function addChange(id, action, html){
+
 	//store the change in the WLEarray
 	item = {}
 	item ["id"] = id;
-	item ["WLEaction"] = 'add-css';
-	item ["WLEhtml"] = css;
+	item ["WLEaction"] = action;
+	
+	//if there's html that needs to be changed
+	if(typeof html !== "undefined"){
+		item ["WLEhtml"] = html;
+	}
 				
 	WLEarray.push(item);
 }
@@ -358,7 +358,7 @@ function addCSS(id, css){
 						//create temporary css for current page
 						$('head').append('<style>#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'")}</style>');
 						//add new css to WLEarray
-						addCSS(oldimgid, '#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'");}');
+						addChange(oldimgid, 'add-css', '#'+oldimgid+' {background-image:url("'+data+ '?' +new Date().getTime()+'");}')
 					}
                 	
 				},
@@ -495,12 +495,9 @@ function addCSS(id, css){
 					var WLEhtml = $(this)[0].outerHTML;
 				}
 				
-				item = {}
-				item ["id"] = id;
-				item ["WLEhtml"] = WLEhtml;
-				item ["WLEaction"] = WLEaction;
+				//add the change to the WLE array
+				addChange(id, WLEaction, WLEhtml);
 				
-				WLEarray.push(item);
 			});
 
 			//then send the changes to the server    		
