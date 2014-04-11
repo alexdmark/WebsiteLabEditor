@@ -183,14 +183,14 @@ function addCSS(id, css){
 		
 	
 		//create edit and save buttons
-		var WLEbuttons = '<div id="WLEbuttons" style="position:fixed;top:50%;margin-top:-72px;left:0;z-index:99999;">';
-		WLEbuttons += '<button style="margin-bottom:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" onclick="window.location=\'/editme\';"><img src="editme/back-button.png" style="width:20px;padding-right:8px;">Page Manager</button>';
-		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEedittext"><img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Text</button>';
-		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEeditimages"><img src="editme/edit-button.png" style="width:20px;padding-right:8px;">Edit Pictures</button>';
-		WLEbuttons += '<br><button style="margin-bottom:0.6em;color:white;border:none;background:#67c036;font:16px sans-serif;padding:10px;outline:none;cursor:pointer;" id="WLEdeletemode"><img src="editme/delete-button.png" style="width:20px;padding-right:8px;">Delete Something</button>';
+		var WLEbuttons = '<div id="WLEbuttons">';
+		WLEbuttons += '<button class="WLEbutton" id="WLEpagemanager" onclick="window.location=\'/editme\';"><img class="WLEbutton-image" src="editme/back-button.png">Page Manager</button>';
+		WLEbuttons += '<br><button class="WLEbutton" id="WLEedittext"><img class="WLEbutton-image" src="editme/edit-button.png">Edit Text</button>';
+		WLEbuttons += '<br><button class="WLEbutton" id="WLEeditimages"><img class="WLEbutton-image" src="editme/edit-button.png">Edit Pictures</button>';
+		WLEbuttons += '<br><button class="WLEbutton" id="WLEdeletemode"><img src="editme/delete-button.png" style="width:20px;padding-right:8px;">Delete Something</button>';
 		WLEbuttons += '<br><button id="WLEfontup">Font +</button><button id="WLEfontdown">Font -</button>';
 		WLEbuttons += '<br><button onclick="document.execCommand(\'undo\');">Undo</button><button onclick="document.execCommand(\'redo\');">Redo</button>';
-		WLEbuttons += '<br><button style="margin-top:0.6em;color:white;border:none;background:#34a3cf;font:16px sans-serif;padding:10px;cursor:pointer;" id="WLEsavepage"><img src="editme/save-button.png" style="width:20px;padding-right:8px;">Save Page</button>';
+		WLEbuttons += '<br><button class="WLEbutton" id="WLEsavepage"><img src="editme/save-button.png" class="WLEbutton-image">Save Page</button>';
 		WLEbuttons += '</div>';
 		
 		$('body').append(WLEbuttons);

@@ -46,7 +46,7 @@ if($_POST['action'] == 'save-page'){
 		
 			$style = $html->find('style[class=WLEcustomcss]');
 			//if WLEcustomcss element already exists
-			if($style){
+			if($style || $style_now_exists == true){
 			
 				//is the id already being styled?
 				$found = strpos($style[0]->innertext, '#'.$change->id);
@@ -65,6 +65,8 @@ if($_POST['action'] == 'save-page'){
 			else {
 				$head = $html->find('head');
 				$head[0]->innertext = $head[0]->innertext.'<style class="WLEcustomcss">'.$change->WLEhtml.'</style>';
+				//this fixes multiple <style>'s being created for the first time
+				$style_now_exists = true;
 			}
 		}
 		//lastly, if action is delete, delete the element
